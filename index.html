@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>hoops</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!-- Bootstrap -->
+        <link href="assets/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
+        <!-- Cache-busting happens via nginx config. Update version stamp here -->
+        <link href="assets/0.1/css/style.css" rel="stylesheet" media="screen">
+    </head>
+    <body>
+        <header class="jumbotron">
+            <div class="container">
+                <h1>hoops</h1>
+                <p>Mapping ad-hoc basketball courts and other play spaces in Chicago</p>
+                <p>A project for <a href="http://areachicago.org/" title="AREA #14: Kids!">AREA #14 "Kids!"</a></p>
+                <p><a href="#learn-more" class="btn btn-default btn-lg">Learn more</a> <a href="#add-hoop" class="btn btn-primary btn-lg">Add a hoop</a></p>
+            </div>
+        </header>
+        <section id="add-hoop" class="container">
+            <h2>Add a hoop</h2>
+
+            <div id="add-hoop-alerts"></div>
+
+            <p>Add a basketball hoop</p>
+
+            <form role="form" id="add-hoop-form">
+                <fieldset>
+                    <div class="form-group">
+                        <label for="location">Location</label>
+                        <input type="text" class="form-control" name="location" placeholder="Enter the location">
+                        <p class="help-block">Where is the hoop? If you're using this page from a smart phone, we'll try to grab the location automatically.</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="image">Add an image</label>
+                        <input type="file" accept="image/*" capture="camera" name="image">
+                        <p class="help-block">Upload an image of this hoop</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="story">Share a story</label>
+                        <textarea class="form-control" rows="3" name="story"></textarea>
+                        <p class="help-block">Share a personal experience with this hoop, or the story behind this hoop</p>
+                    </div>
+
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" name="contact-ok" value="true"> It's okay to get in touch with me 
+                        </label>
+                        <p class="help-block">Check this box and you'll be asked for contact information so I can get in touch with you to find out more</p>
+                    </div>
+                </fieldset>
+
+                <fieldset id="contact-information" style="display: none;">
+                    <div class="form-group">
+                        <label for="email">Email address</label>
+                        <input type="email" class="form-control" name="email" placeholder="Enter email">
+
+                        <label for="phone">or phone number</label>
+                        <input type="phone" class="form-control" name="phone" placeholder="Enter phone number">
+                    </div>
+                </fieldset>
+
+                <input type="hidden" name="lat">
+                <input type="hidden" name="lng">
+
+                <button type="submit" class="btn btn-default">Submit</button>
+            </form>
+        </section>
+        <footer>
+            <div class="container"></div>    
+        </footer>
+
+        <script src="assets/js/vendor/jquery-2.0.3.min.js"></script>
+        <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+        <script>
+            (function(window, document) {
+                var addAlert = function(type, msg, container) {
+                    container = container || $('#add-hoop-alerts');
+                    var html = '<div class="alert alert-dismissable alert-' + type + '"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' + msg;
+                    container.append(html);
+                };
+                var apiBase = 'api/0.1/';
+                var addEndpoint = apiBase + 'hoops/';
+                var $form = $('#add-hoop-form');
+
+                // Try to get the coordinates from the user's browser/device
+                if ("geolocation" in navigator) {
+                    // geolocation is available
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        //console.debug("Successfully got position");
+                        $form.find("[name='lat']").val(position.coords.latitude);
+                        $form.find("[name='lng']").val(position.coords.longitude);
+                    },
+                    function(error) {
+                        //console.debug("Error getting position");
+                        //console.debug(error);
+                    });
+                }
+
+                $form.find("[name='contact-ok']").change(function(evt) {
+                    var $fieldset = $('#contact-information');
+                    if ($(evt.target).is(':checked')) {
+                        $fieldset.show();
+                    }
+                    else {
+                        $fieldset.hide();
+                    }
+                });
+
+                $form.submit(function(evt) {
+                    var form = evt.target;
+                    var data, post;
+
+                    evt.preventDefault();
+
+                    if (!! window.FormData) {
+                      data = new FormData(form);
+
+                      post = $.ajax(addEndpoint, {
+                          type: "POST",
+                          processData: false,
+                          contentType: false,
+                          data: data,
+                          success: function(data, textStatus, jqXHR) {
+                              $('#add-hoop-alerts .alert').alert('close');
+                              addAlert("success", "Thanks for adding a hoop");
+                              window.location.hash = "#add-hoop";
+                          }
+                      });
+                    }
+                    else {
+                      // TODO: Handle case where browser doesn't support FormData
+                    }
+                });
+            })(window, document);
+        </script>
+    </body>
+</html>
+
