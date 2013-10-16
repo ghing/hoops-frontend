@@ -65,7 +65,7 @@
                 <input type="hidden" name="lat">
                 <input type="hidden" name="lng">
 
-                <button type="submit" class="btn btn-default">Submit</button>
+                <button type="submit" class="btn btn-default" data-loading-text="Submitting ...">Submit</button>
             </form>
         </section>
         <footer>
@@ -81,6 +81,11 @@
                     var html = '<div class="alert alert-dismissable alert-' + type + '"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' + msg;
                     container.append(html);
                 };
+                var clearAlerts = function($sel) {
+                    $sel = $sel || $('#add-hoop-alerts').find('.alert-success,.alert-danger');
+                    $sel.alert('close');
+                };
+                var locationAlertShown = false;
                 var apiBase = 'api/0.1/';
                 var addEndpoint = apiBase + 'hoops/';
                 var $form = $('#add-hoop-form');
@@ -88,15 +93,22 @@
                 // Try to get the coordinates from the user's browser/device
                 if ("geolocation" in navigator) {
                     // geolocation is available
-                    navigator.geolocation.getCurrentPosition(function(position) {
-                        //console.debug("Successfully got position");
+                    navigator.geolocation.watchPosition(function(position) {
                         $form.find("[name='lat']").val(position.coords.latitude);
                         $form.find("[name='lng']").val(position.coords.longitude);
                     },
                     function(error) {
-                        //console.debug("Error getting position");
-                        //console.debug(error);
-                    });
+                        if (!locationAlertShown) {
+                          addAlert('warning', "We weren't able to get your position from your device.  Be sure to fill out the location field. The error message was " + error.message);
+                          locationAlertShown = true;
+                        }
+                    },
+                    {
+                      enableHighAccuracy: true, 
+                      maximumAge        : 30000, 
+                      timeout           : 30000
+                    }
+                    );
                 }
 
                 $form.find("[name='contact-ok']").change(function(evt) {
@@ -112,8 +124,12 @@
                 $form.submit(function(evt) {
                     var form = evt.target;
                     var data, post;
+                    var $button = $(form).find('button[type="submit"]');
 
                     evt.preventDefault();
+
+                    clearAlerts();
+                    $button.button('loading');
 
                     if (!! window.FormData) {
                       data = new FormData(form);
@@ -127,11 +143,19 @@
                               $('#add-hoop-alerts .alert').alert('close');
                               addAlert("success", "Thanks for adding a hoop");
                               window.location.hash = "#add-hoop";
+                              form.reset();
+                          },
+                          error: function(jqXHR, textStatus, errorThrown) {
+                              addAlert("danger", "There was a problem submitting the hoops: " + textStatus);
+                          },
+                          complete: function(jqXHR, textStatus) {
+                              $button.button('reset');
                           }
                       });
                     }
                     else {
                       // TODO: Handle case where browser doesn't support FormData
+                      addAlert("danger", "Your browser isn't supported. We're working to fix this.");
                     }
                 });
             })(window, document);
