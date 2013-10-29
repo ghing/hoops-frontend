@@ -11,6 +11,14 @@ require([
 ], function($, L) {
   var CHICAGO_CENTER = [41.881944, -87.627778];
 
+  /**
+   * Get HTML of a Leaflet popup from a hoop feature's properties
+   */
+  function popupText(feature) {
+    return "<p>" + feature.properties.name + "</p>" +
+           "<p>" + feature.properties.count + " hoops</p>";
+  }
+
   $(function() {
     var map = L.map('map').setView(CHICAGO_CENTER, 13);
     // add an OpenStreetMap tile layer
@@ -23,7 +31,11 @@ require([
     // machine than my netbook
     // TODO: Basic styling of markers
     $.getJSON('data/basketball_courts.geojson', function(data) {
-      L.geoJson(data).addTo(map);
+      L.geoJson(data, {
+        onEachFeature: function (feature, layer) {
+          layer.bindPopup(popupText(feature));
+        }
+      }).addTo(map);
     });
   });
 });
