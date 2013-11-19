@@ -58,6 +58,9 @@ require([
     }));
   }
 
+  var breaks = [0.05, 0.10, 0.15, 0.20];
+  var colors = ['#edf8fb', '#b2e2e2', '#66c2a4', '#2ca2f5', '#006d2c'];
+
   /**
    * Get HTML of a Leaflet popup from a hoop feature's properties
    */
@@ -68,10 +71,8 @@ require([
 
   function getColor(d) {
     var i;
-    var breaks = [0.05, 0.10, 0.15, 0.20];
-    var colors = ['#edf8fb', '#b2e2e2', '#66c2a4', '#2ca2f5', '#006d2c'];
 
-    for (i = 0; i < breaks.length - 1; i++) {
+    for (i = 0; i < breaks.length; i++) {
       if (d <= breaks[i]) {
         return colors[i];
       }
@@ -82,6 +83,24 @@ require([
 
   $(function() {
     var map = L.map('map').setView(CHICAGO_CENTER, 13);
+    var legend = L.control({position: 'bottomright'});
+    var lower, upper, sep;
+
+    legend.onAdd = function(map) {
+      var div = L.DomUtil.create('div', 'info legend');
+
+      for (var i = 0; i <= breaks.length; i++) {
+        lower = (i === 0) ? 0 : breaks[i - 1] * 100;
+        upper = (i === breaks.length) ? '+' : breaks[i] * 100;
+        sep = (i === breaks.length) ? '' : '-'; 
+        div.innerHTML += '<i style="background:' + colors[i] + '"></i> ' + lower + sep + upper + ' %<br />';
+      }
+
+      return div;
+    };
+
+    legend.addTo(map);
+
     // add an OpenStreetMap tile layer
     L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors. <a href="http://thenounproject.com/noun/basketball-hoop/#icon-No2711" target="_blank">Basketball Hoop</a> designed by <a href="http://thenounproject.com/Gabriele Fumero" target="_blank">Gabriele Fumero</a> from The Noun Project'
