@@ -1,14 +1,41 @@
 requirejs.config({
   paths: {
     "jquery": "vendor/jquery-2.0.3.min",
-    "leaflet": "vendor/leaflet-0.6.4/leaflet"
+    "leaflet": "vendor/leaflet-0.6.4/leaflet",
+    "topojson": "vendor/topojson"
+  },
+  shim: {
+    'topojson': {
+      exports: 'topojson'
+    }
   }
 });
 
 require([
   "jquery",
-  "leaflet"
-], function($, L) {
+  "leaflet",
+  "topojson"
+], function($, L, topojson) {
+  // TopoJSON layer for Leaflet
+  // from http://bl.ocks.org/rclark/5779673
+  L.TopoJSON = L.GeoJSON.extend({
+    addData: function(jsonData) {    
+      if (jsonData.type === "Topology") {
+        for (var key in jsonData.objects) {
+          geojson = topojson.feature(jsonData, jsonData.objects[key]);
+          L.GeoJSON.prototype.addData.call(this, geojson);
+        }
+      }    
+      else {
+        L.GeoJSON.prototype.addData.call(this, jsonData);
+      }
+    }  
+  });
+
+  L.topoJson = function (geojson, options) {
+    return new L.TopoJSON(geojson, options);
+  };
+
   var CHICAGO_CENTER = [41.881944, -87.627778];
 
   var HoopIcon = L.Icon.extend({
@@ -39,6 +66,20 @@ require([
            "<p>" + feature.properties.count + " hoops</p>";
   }
 
+  function getColor(d) {
+    var i;
+    var breaks = [0.05, 0.10, 0.15, 0.20];
+    var colors = ['#edf8fb', '#b2e2e2', '#66c2a4', '#2ca2f5', '#006d2c'];
+
+    for (i = 0; i < breaks.length - 1; i++) {
+      if (d <= breaks[i]) {
+        return colors[i];
+      }
+    }
+
+    return colors[i];
+  }
+
   $(function() {
     var map = L.map('map').setView(CHICAGO_CENTER, 13);
     // add an OpenStreetMap tile layer
@@ -46,10 +87,6 @@ require([
       attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors. <a href="http://thenounproject.com/noun/basketball-hoop/#icon-No2711" target="_blank">Basketball Hoop</a> designed by <a href="http://thenounproject.com/Gabriele Fumero" target="_blank">Gabriele Fumero</a> from The Noun Project'
     }).addTo(map);
 
-    // BOOKMARK
-    // TODO: Check display of basketball courts.  See if performance issue breaks on heftier
-    // machine than my netbook
-    // TODO: Basic styling of markers
     $.getJSON('data/basketball_courts.geojson', function(data) {
       L.geoJson(data, {
         pointToLayer: function(feature, latlng) {
@@ -58,6 +95,20 @@ require([
         },
         onEachFeature: function (feature, layer) {
           layer.bindPopup(popupText(feature));
+        }
+      }).addTo(map);
+    });
+
+    $.getJSON('data/tracts.json', function(tracts) {
+      L.topoJson(tracts, {
+        style: function(feature) {
+          return {
+            fillColor: getColor(feature.properties.pct_older_kids),
+            weight: 2,
+            opacity: 1,
+            color: 'white',
+            fillOpacity: 0.7
+          };
         }
       }).addTo(map);
     });
