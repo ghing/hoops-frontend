@@ -122,7 +122,7 @@ require([
         }
       }).addTo(map);
     };
-    courtsXhr.open('get', 'data/basketball_courts.geojson');
+    courtsXhr.open('get', 'data/basketball_courts.json');
     courtsXhr.send();
 
     var tractsXhr = new XMLHttpRequest();
