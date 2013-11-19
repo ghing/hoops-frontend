@@ -11,6 +11,7 @@ html, body {
 }
 
 #map .legend {
+  max-width: 200px;
   line-height: 18px;
   color: #555;
 }
@@ -21,6 +22,13 @@ html, body {
   float: left;
   margin-right: 8px;
   opacity: 0.7;
+}
+
+.legend i.hoop {
+  width: 24px;
+  background-image: url('../images/hoop-marker-icon.png');
+  background-size: 24px;
+  background-repeat: no-repeat;
 }
 
 footer {

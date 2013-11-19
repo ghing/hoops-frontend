@@ -85,16 +85,20 @@ require([
     var lower, upper, sep;
 
     legend.onAdd = function(map) {
-      var div = L.DomUtil.create('div', 'info legend');
+      var el = L.DomUtil.create('div', 'info legend');
+
+      el.innerHTML += '<i class="hoop"></i> Park District hoop<br />';
+
+      el.innerHTML += '<h3>Kids, ages 10-17, as percent of total population</h3>';
 
       for (var i = 0; i <= breaks.length; i++) {
         lower = (i === 0) ? 0 : breaks[i - 1] * 100;
         upper = (i === breaks.length) ? '+' : breaks[i] * 100;
         sep = (i === breaks.length) ? '' : '-'; 
-        div.innerHTML += '<i style="background:' + colors[i] + '"></i> ' + lower + sep + upper + ' %<br />';
+        el.innerHTML += '<i style="background:' + colors[i] + '"></i> ' + lower + sep + upper + ' %<br />';
       }
 
-      return div;
+      return el;
     };
 
     legend.addTo(map);
