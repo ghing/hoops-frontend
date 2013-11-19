@@ -1,6 +1,5 @@
 requirejs.config({
   paths: {
-    "jquery": "vendor/jquery-2.0.3.min",
     "leaflet": "vendor/leaflet-0.6.4/leaflet",
     "topojson": "vendor/topojson"
   },
@@ -12,10 +11,9 @@ requirejs.config({
 });
 
 require([
-  "jquery",
   "leaflet",
   "topojson"
-], function($, L, topojson) {
+], function(L, topojson) {
   // TopoJSON layer for Leaflet
   // from http://bl.ocks.org/rclark/5779673
   L.TopoJSON = L.GeoJSON.extend({
@@ -81,7 +79,7 @@ require([
     return colors[i];
   }
 
-  $(function() {
+  (function() {
     var map = L.map('map').setView(CHICAGO_CENTER, 13);
     var legend = L.control({position: 'bottomright'});
     var lower, upper, sep;
@@ -106,7 +104,10 @@ require([
       attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors. <a href="http://thenounproject.com/noun/basketball-hoop/#icon-No2711" target="_blank">Basketball Hoop</a> designed by <a href="http://thenounproject.com/Gabriele Fumero" target="_blank">Gabriele Fumero</a> from The Noun Project'
     }).addTo(map);
 
-    $.getJSON('data/basketball_courts.geojson', function(data) {
+    var courtsXhr = new XMLHttpRequest();
+    courtsXhr.onload = function() {
+      var data = JSON.parse(this.responseText);
+
       L.geoJson(data, {
         pointToLayer: function(feature, latlng) {
           var numHoops = feature.properties.count || 0;
@@ -116,9 +117,13 @@ require([
           layer.bindPopup(popupText(feature));
         }
       }).addTo(map);
-    });
+    };
+    courtsXhr.open('get', 'data/basketball_courts.geojson');
+    courtsXhr.send();
 
-    $.getJSON('data/tracts.json', function(tracts) {
+    var tractsXhr = new XMLHttpRequest();
+    tractsXhr.onload = function() {
+      var tracts = JSON.parse(this.responseText);
       L.topoJson(tracts, {
         style: function(feature) {
           return {
@@ -130,6 +135,8 @@ require([
           };
         }
       }).addTo(map);
-    });
-  });
+    };
+    tractsXhr.open('get', 'data/tracts.json');
+    tractsXhr.send();
+  })();
 });
