@@ -3,10 +3,12 @@
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
-        <link rel="stylesheet" href="assets/js/vendor/leaflet-0.6.4/leaflet.css" />
-        <link rel="stylesheet" href="assets/css/style.css" />
+        <!-- build:css assets/css/map.css -->
+        <link rel="stylesheet" href="vendor/leaflet-dist/leaflet.css" />
+        <link rel="stylesheet" href="assets/css/style.css"/>
+        <!-- endbuild -->
 
-        <script data-main="assets/js/map/app" src="assets/js/vendor/require.js"></script>
+        <script data-main="assets/js/map/app" src="vendor/requirejs/require.js"></script>
     </head>
     <body>
         <div id="map"></div>

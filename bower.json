@@ -1,0 +1,11 @@
+{
+  "name": "hoops-frontend",
+  "dependencies": {
+    "almond": "0.2.7",
+    "bootstrap": "~3.0.0",
+    "leaflet-dist": "0.7.0",
+    "requirejs": "2.1.9",
+    "topojson": "1.4.4",
+    "jquery": "~2.0.0"
+  }
+}

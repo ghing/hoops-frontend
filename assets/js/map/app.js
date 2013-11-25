@@ -1,7 +1,7 @@
 requirejs.config({
   paths: {
-    "leaflet": "../vendor/leaflet-0.6.4/leaflet",
-    "topojson": "../vendor/topojson"
+    "leaflet": "../../../vendor/leaflet-dist/leaflet",
+    "topojson": "../../../vendor/topojson/topojson"
   },
   shim: {
     'topojson': {

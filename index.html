@@ -3,10 +3,11 @@
     <head>
         <title>hoops</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <!-- Bootstrap -->
-        <link href="assets/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
-        <!-- Cache-busting happens via nginx config. Update version stamp here -->
-        <link href="assets/0.1/css/style.css" rel="stylesheet" media="screen">
+
+        <!-- build:css assets/css/index.css -->
+        <link href="vendor/bootstrap/dist/css/bootstrap.css" rel="stylesheet" media="screen">
+        <link href="assets/css/style.css" rel="stylesheet" media="screen">
+        <!-- endbuild -->
     </head>
     <body>
         <header class="jumbotron">
@@ -83,8 +84,10 @@
         ga('create', 'UA-45140368-1', 'terrorware.com');
         ga('send', 'pageview');
         </script>
-        <script src="assets/js/vendor/jquery-2.0.3.min.js"></script>
-        <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+        <!-- build:js assets/js/index.js -->
+        <script src="vendor/jquery/jquery.js"></script>
+        <script src="assets/bootstrap/dist/js/bootstrap.js"></script>
+        <!-- endbuild -->
         <script>
             (function(window, document) {
                 var addAlert = function(type, msg, container) {
